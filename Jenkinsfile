@@ -31,5 +31,16 @@ steps {
     }
   }
     }
+stage("QualityGate"){
+steps
+{
+script {
+timeout(time: 1, unit: 'HOURS') {
+def qg = waitForQualityGate()
+if (qg.status != 'OK') {
+error "pipeline aborted due to qg failure: ${qg.status}"
+}}}}}
+
+
 }
 }
