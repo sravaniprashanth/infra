@@ -11,9 +11,16 @@ PATH = "/opt/apache-maven-3.9.6/bin:$PATH"
         stage("build")
         {
             steps {
-sh 'mvn clean package'
+sh 'mvn clean package -Dmaven.test.skip=true'
             }
         }
+stage("test") {
+steps {
+echo "-----unit tests started-----"
+sh 'mvn surefire-report:report'
+echo "----unit tests done-------"
+}
+}
  stage('SonarQube analysis') {
 environment {
     scannerHome = tool 'my-sonar-scanner';
