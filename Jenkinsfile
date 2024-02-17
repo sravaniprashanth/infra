@@ -11,7 +11,7 @@ PATH = "/opt/apache-maven-3.9.6/bin:$PATH"
         stage("build")
         {
             steps {
-sh 'mvn clean deploy'
+sh 'mvn clean package'
             }
         }
     }
