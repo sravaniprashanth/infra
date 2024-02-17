@@ -8,6 +8,8 @@ terraform {
     }
   }
 }
+
+/*
 #######VARIABLES##########
 ##########################
 #Region:
@@ -56,15 +58,17 @@ variable "h_port" {
 
 ##########################
 ##########################
-
+*/
 
 #Provider Details
 #================
 provider "aws" {
-  region     = var.a_infra_region
-  access_key = var.b_access_key
-  secret_key = var.c_secret_key
+  region     = "eu-north-1"
+  access_key = "AKIA5FTZB4SVD36BHFQW"
+  secret_key = "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"
 }
+
+/*
 #Resource Details
 #================
 resource "aws_instance" "web" {
@@ -101,4 +105,52 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
+*/
 
+#Create a VPC
+resource "aws_vpc" "my-vpc" {
+    cidr_block = "10.1.0.0/16"
+    tags = {
+        Name="my-vpc"
+    }
+}
+resource "aws_subnet" "my-vpc-sub01" {
+  vpc_id = aws_vpc.my-vpc.id
+  cidr_block = "10.1.1.0/24"
+  map_public_ip_on_launch = "true"
+  availability_zone = "eu-north-1a"
+  tags = {
+    Name = "my-vpc-public-subnet01"
+  }
+}
+resource "aws_subnet" "my-vpc-sub02" {
+  vpc_id = aws_vpc.my-vpc.id
+  cidr_block = "10.1.2.0/24"
+  map_public_ip_on_launch = "true"
+  availability_zone = "eu-north-1b"
+  tags = {
+    Name = "my-vpc-public-subnet02"
+  }
+}
+resource "aws_internet_gateway" "my-igw" {
+    vpc_id = aws_vpc.my-vpc.id
+    tags = {
+        Name = "my-igw"
+    }
+  
+}
+resource "aws_route_table" "public-route" {
+    vpc_id = aws_vpc.my-vpc.id
+    route  {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_internet_gateway.my-igw.id
+    }
+}
+resource "aws_route_table_association" "myroutetable1" {
+ subnet_id = aws_subnet.my-vpc-sub01.id
+ route_table_id = aws_route_table.public-route.id
+}
+resource "aws_route_table_association" "myroutetable2" {
+ subnet_id = aws_subnet.my-vpc-sub02.id
+ route_table_id = aws_route_table.public-route.id
+}
