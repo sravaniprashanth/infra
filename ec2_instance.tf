@@ -9,7 +9,6 @@ terraform {
   }
 }
 
-/*
 #######VARIABLES##########
 ##########################
 #Region:
@@ -54,31 +53,38 @@ variable "h_port" {
     type = string
     description = "Please enter the port number"
 }
+variable "i_port" {
+    type = string
+    description = "Please enter the port number"
+}
 
 
 ##########################
 ##########################
-*/
+
 
 #Provider Details
 #================
 provider "aws" {
-  region     = "eu-north-1"
-  access_key = "AKIA5FTZB4SVD36BHFQW"
-  secret_key = "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"
+  region     = var.a_infra_region
+  access_key = var.b_access_key
+  secret_key = var.c_secret_key
 }
 
-/*
+
 #Resource Details
 #================
 resource "aws_instance" "web" {
   ami           = var.e_image_id
   instance_type = var.f_instance_type
+  key_name = var.g_key_pair
   vpc_security_group_ids = [ aws_security_group.securitygrp1.id ]
+  #user_data = file("${path.module}/jenkins.sh")
+  for_each = toset(["jenkinsmaster", "jenkinsslave"])
 
 
   tags = {
-    Name = var.d_server_name
+    Name = "${each.key}"
   }
 }
 resource "aws_security_group" "securitygrp1" {
@@ -99,13 +105,21 @@ resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
   to_port           = var.h_port
 }
 
+resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4_2" {
+  security_group_id = aws_security_group.securitygrp1.id
+   cidr_ipv4         = "0.0.0.0/0"
+  from_port         = var.i_port
+  ip_protocol       = "tcp"
+  to_port           = var.i_port
+}
+
 resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
   security_group_id = aws_security_group.securitygrp1.id
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1" # semantically equivalent to all ports
 }
 
-*/
+/*
 
 #Create a VPC
 resource "aws_vpc" "my-vpc" {
@@ -154,3 +168,4 @@ resource "aws_route_table_association" "myroutetable2" {
  subnet_id = aws_subnet.my-vpc-sub02.id
  route_table_id = aws_route_table.public-route.id
 }
+*/
