@@ -4,11 +4,13 @@ pipeline
     {
         node { label 'maven' }
     }
+environment {
+PATH = "/opt/apache-maven-3.9.6/bin:$PATH"
     stages {
-        stage("hello")
+        stage("build")
         {
             steps {
-git branch: 'main', url: 'https://github.com/sravaniprashanth/infra.git'
+sh 'mvn clean deploy'
             }
         }
     }
